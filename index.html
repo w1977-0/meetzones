@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>三时区会议排期 / Meeting time across time zones / 多時間帯の会議 — meetzones: 无广告·无追踪·免费</title>
+<meta name="description" content="免费三时区会议排期:找几个城市的共同可用时间,逐小时标色(都在工作时间内/有人在早/晚/睡觉),可分享链接。无广告无追踪,全部浏览器本地计算。Find the best meeting time across time zones — colour-coded overlap grid, shareable link, no ads, no tracking, free. 複数の時間帯の会議時間を色分け表示。">
+<meta name="keywords" content="会议排期,时区转换,世界时钟,跨国会议,时区重叠,最佳会议时间,huiyi,shiqu,meeting time zones,best meeting time,world clock,timezone overlap,remote team,多時間帯,会議時間">
+<meta name="author" content="w1977-0">
+<link rel="canonical" href="https://w1977-0.github.io/meetzones/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://w1977-0.github.io/meetzones/">
+<meta property="og:title" content="meetzones — 三时区会议排期 / Meeting time across time zones">
+<meta property="og:description" content="免费·无广告:跨时区找共同可用时间,逐小时标色,可分享。Free, ad-free timezone overlap grid.">
+<meta property="og:site_name" content="meetzones">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "meetzones",
+  "url": "https://w1977-0.github.io/meetzones/",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (browser)",
+  "description": [
+    {"@language": "zh", "value": "免费三时区会议排期:共同可用时间逐小时标色,可分享链接,无广告无追踪。"},
+    {"@language": "en", "value": "Free ad-free meeting-time finder across time zones: colour-coded overlap grid, shareable."},
+    {"@language": "ja", "value": "複数時間帯の会議時間を色分けで表示,無料・広告なし。"}
+  ],
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+  "featureList": "colour-coded overlap · shareable link · 36 preset cities · custom IANA zones · no ads · no tracking · open source",
+  "isAccessibleForFree": true
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --ink: #141311; --paper: #fdfcf8; --fg: #141311; --bg: #f4f2ec;
+    --faint: rgba(20,19,17,.55); --hair: rgba(20,19,17,.18);
+    --good: rgba(20,60,20,.75); --mid: rgba(180,140,20,.55); --bad: rgba(160,60,20,.35);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink: #f2efe8; --paper: #1b1b1f; --fg: #ece9e2; --bg: #101010; --faint: rgba(242,239,232,.55); --hair: rgba(242,239,232,.16);
+      --good: rgba(120,220,120,.35); --mid: rgba(230,190,90,.3); --bad: rgba(230,120,80,.25); }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font: 16px/1.5 ui-sans-serif, system-ui, "Helvetica Neue", "PingFang SC", sans-serif;
+    background: var(--bg); color: var(--fg);
+    min-height: 100dvh; display: grid; place-items: center;
+    padding: clamp(1rem, 4vh, 3rem) 1.25rem;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { width: min(48rem, 94vw); }
+  .masthead { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-bottom: 1.2rem; }
+  .brand { font-weight: 700; letter-spacing: .28em; text-transform: uppercase; font-size: .95rem; }
+  .mast-note { font-size: .78rem; color: var(--faint); text-align: right; }
+
+  .panel { border: 2px solid var(--fg); background: var(--paper); padding: 1rem 1.1rem; }
+  .picks { display: flex; flex-direction: column; gap: .7rem; }
+  .pick { display: flex; gap: .7rem; align-items: center; flex-wrap: wrap; }
+  .pick select, .pick input[type=text] {
+    font: inherit; color: var(--fg); background: transparent;
+    border: 1.5px solid var(--fg); padding: .45rem .55rem; flex: 1; min-width: 8rem;
+  }
+  .pick .cur { font-size: .8rem; color: var(--faint); font-variant-numeric: tabular-nums; width: 5.2rem; }
+  .pick button.x { font: 650 1rem/1 inherit; border: 1.5px solid var(--fg); background: transparent; color: var(--fg); width: 2rem; height: 2rem; cursor: pointer; }
+  button.add { margin-top: .7rem; font: 650 .85rem/1 inherit; border: 1.5px dashed var(--fg); background: transparent; color: var(--fg); padding: .5rem 1rem; cursor: pointer; }
+  .row2 { display: flex; gap: .9rem; margin-top: .9rem; flex-wrap: wrap; align-items: end; border-top: 1px solid var(--hair); padding-top: .8rem; }
+  .field label { display: block; font-size: .72rem; color: var(--faint); margin-bottom: .25rem; }
+  .field input, .field select { font: inherit; color: var(--fg); background: transparent; border: 1.5px solid var(--fg); padding: .4rem .5rem; width: 7rem; }
+  button.go { font: 650 .95rem/1 inherit; color: var(--bg); background: var(--fg); border: 1.5px solid var(--fg); padding: .55rem 1.3rem; cursor: pointer; }
+  button.share { font: 600 .82rem/1 inherit; color: var(--fg); background: transparent; border: 1.5px solid var(--fg); padding: .5rem .9rem; cursor: pointer; }
+
+  .grid24 { margin-top: 1.4rem; }
+  .grid24 .caption { font-size: .74rem; color: var(--faint); margin-bottom: .5rem; letter-spacing: .04em; }
+  .hours { display: grid; grid-template-columns: repeat(24, 1fr); gap: 2px; }
+  .hours .h { height: 2.6rem; display: grid; place-items: center; font: 650 .8rem/1 ui-monospace, Menlo, monospace; border: 1px solid var(--hair); cursor: default; }
+  .h.prime { background: var(--good); }
+  .h.ok { background: var(--mid); }
+  .h.rough { background: var(--bad); }
+  .h.impossible { background: transparent; color: var(--faint); }
+
+  .best { margin-top: 1.2rem; }
+  .best table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+  .best th, .best td { padding: .45rem .5rem; border-bottom: 1px solid var(--hair); text-align: left; font-variant-numeric: tabular-nums; }
+  .best th { font-size: .7rem; color: var(--faint); letter-spacing: .08em; font-weight: 600; }
+  .tag { font-size: .68rem; font-weight: 700; letter-spacing: .06em; padding: .12rem .4rem; border: 1px solid currentColor; }
+  .tag.prime { color: var(--fg); }
+  .tag.ok { color: var(--faint); }
+  .legend { margin-top: .8rem; font-size: .74rem; color: var(--faint); display: flex; gap: 1.1rem; flex-wrap: wrap; }
+  .legend i { display: inline-block; width: .8rem; height: .8rem; vertical-align: -1px; margin-right: .25rem; border: 1px solid var(--hair); }
+  footer { margin-top: 1.6rem; font-size: .72rem; color: var(--faint); display: flex; gap: 1.4rem; flex-wrap: wrap; }
+  footer a { color: inherit; }
+  @media (max-width: 40rem) { .hours { grid-template-columns: repeat(12, 1fr); } .hours .h { height: 2rem; font-size: .68rem; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="masthead">
+    <span class="brand">meetzones</span>
+    <span class="mast-note">无广告 · 无追踪 · 全程本地 — ad-free, in your browser · 広告なし</span>
+  </div>
+
+  <div class="panel">
+    <div class="picks" id="picks"></div>
+    <button class="add" id="add">+ 添加城市</button>
+    <div class="row2">
+      <div class="field"><label>会议时长(小时)</label><input type="number" id="dur" value="1" min="1" max="4" step="1"></div>
+      <div class="field"><label>工作时段起(点)</label><input type="number" id="ws" value="9" min="0" max="23" step="1"></div>
+      <div class="field"><label>工作时段止(点)</label><input type="number" id="we" value="18" min="1" max="24" step="1"></div>
+      <span style="flex:1"></span>
+      <button class="share" id="share">复制分享链接</button>
+      <button class="go" id="go">找共同时间</button>
+    </div>
+  </div>
+
+  <div class="grid24" id="grid24" hidden>
+    <div class="caption" id="caption">—</div>
+    <div class="hours" id="hours"></div>
+    <div class="legend">
+      <span><i class="prime" style="background:var(--good)"></i>所有人都在工作时间内</span>
+      <span><i class="ok" style="background:var(--mid)"></i>有人早/晚(8-22点可接受)</span>
+      <span><i class="rough" style="background:var(--bad)"></i>边缘时段</span>
+      <span><i style="background:transparent"></i>有人在睡觉(23-7点)</span>
+    </div>
+  </div>
+
+  <div class="best" id="best" hidden>
+    <table>
+      <thead><tr><th>档位</th><th id="col-anchor">锚点城市时间</th><th>各地钟面</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <footer>
+    <span>锚点城市 = 第一个所选城市的一天</span>
+    <a href="https://github.com/w1977-0/meetzones" rel="noopener">meetzones</a>
+    <a href="https://github.com/w1977-0/meetzones#how-it-works" rel="noopener">how it works</a>
+  </footer>
+</main>
+<script>
+// meetmath.js — meetzones core math. Zero dependencies, browser + Node.
+//
+// One job: given N time zones, find the hours where everyone is inside
+// acceptable hours (default 09:00–18:00 local), score each hour honestly,
+// and express every slot in each participant's own wall clock.
+//
+// The engine is the same UTC-arithmetic discipline as yearpulse: zone
+// offsets come from the platform IANA db via Intl; a local date's hour-of-
+// day at a given UTC instant is read through Intl with no offset tables.
+
+(function (root, factory) {
+  if (typeof module === "object" && module.exports) module.exports = factory();
+  else root.meetmath = factory();
+})(typeof self !== "undefined" ? self : this, function () {
+  "use strict";
+
+  // Common city set (deliberately compact: 40 covers most real meetings;
+  // any IANA name can be typed into the custom box).
+  var CITIES = [
+    { c: "北京", tz: "Asia/Shanghai" }, { c: "上海", tz: "Asia/Shanghai" },
+    { c: "香港", tz: "Asia/Hong_Kong" }, { c: "台北", tz: "Asia/Taipei" },
+    { c: "东京", tz: "Asia/Tokyo" }, { c: "首尔", tz: "Asia/Seoul" },
+    { c: "新加坡", tz: "Asia/Singapore" }, { c: "曼谷", tz: "Asia/Bangkok" },
+    { c: "新德里", tz: "Asia/Kolkata" }, { c: "孟买", tz: "Asia/Kolkata" },
+    { c: "迪拜", tz: "Asia/Dubai" }, { c: "莫斯科", tz: "Europe/Moscow" },
+    { c: "伊斯坦布尔", tz: "Europe/Istanbul" }, { c: "柏林", tz: "Europe/Berlin" },
+    { c: "巴黎", tz: "Europe/Paris" }, { c: "伦敦", tz: "Europe/London" },
+    { c: "拉各斯", tz: "Africa/Lagos" }, { c: "开罗", tz: "Africa/Cairo" },
+    { c: "内罗毕", tz: "Africa/Nairobi" }, { c: "约翰内斯堡", tz: "Africa/Johannesburg" },
+    { c: "圣保罗", tz: "America/Sao_Paulo" }, { c: "布宜诺斯艾利斯", tz: "America/Argentina/Buenos_Aires" },
+    { c: "纽约", tz: "America/New_York" }, { c: "多伦多", tz: "America/Toronto" },
+    { c: "芝加哥", tz: "America/Chicago" }, { c: "墨西哥城", tz: "America/Mexico_City" },
+    { c: "丹佛", tz: "America/Denver" }, { c: "洛杉矶", tz: "America/Los_Angeles" },
+    { c: "旧金山", tz: "America/Los_Angeles" }, { c: "温哥华", tz: "America/Vancouver" },
+    { c: "檀香山", tz: "Pacific/Honolulu" }, { c: "奥克兰", tz: "Pacific/Auckland" },
+    { c: "悉尼", tz: "Australia/Sydney" }, { c: "墨尔本", tz: "Australia/Melbourne" },
+    { c: "珀斯", tz: "Australia/Perth" }, { c: "UTC", tz: "UTC" }
+  ];
+
+  function supportsZone(tz) {
+    try { new Intl.DateTimeFormat("en-US", { timeZone: tz }).format(new Date()); return true; }
+    catch (e) { return false; }
+  }
+
+  // Local clock parts of a UTC instant in a zone (hour 0-23).
+  var fmtCache = {};
+  function zoneHourFormatter(tz) {
+    if (fmtCache[tz]) return fmtCache[tz];
+    var dtf = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz, year: "numeric", month: "numeric", day: "numeric",
+      hour: "numeric", hour12: false, minute: "numeric"
+    });
+    fmtCache[tz] = function (ms) {
+      var p = dtf.formatToParts(new Date(ms));
+      var o = { year: 0, month: 0, day: 0, hour: 0, minute: 0 };
+      for (var i = 0; i < p.length; i++) {
+        var t = p[i].type, v = p[i].value;
+        if (t === "year") o.year = +v;
+        else if (t === "month") o.month = +v;
+        else if (t === "day") o.day = +v;
+        else if (t === "hour") o.hour = +v % 24;
+        else if (t === "minute") o.minute = +v;
+      }
+      return o;
+    };
+    return fmtCache[tz];
+  }
+
+  // The hour band for an instant: which local hour is it in a zone?
+  // Returns the local wall-clock hour (int) of the hour containing `ms`.
+  function localHourOf(tz, ms) {
+    return zoneHourFormatter(tz)(ms).hour;
+  }
+
+  // Quality classification for a given local hour, with configurable bands.
+  // 2 = prime (both ends inside), 1 = shoulder (edge stretch), 0 = bad, -1 = sleep.
+  function hourQuality(localHour, bands) {
+    bands = bands || DEFAULT_BANDS();
+    if (localHour >= bands.workStart && localHour < bands.workEnd) return 2;
+    if (localHour >= bands.softStart && localHour < bands.softEnd) return 1;
+    if (localHour >= bands.nightStart || localHour < bands.nightEnd) return -1;
+    return 0;
+  }
+
+  function DEFAULT_BANDS() {
+    return { workStart: 9, workEnd: 18, softStart: 8, softEnd: 22, nightStart: 23, nightEnd: 7 };
+  }
+
+  // Score one hour slot across all zones. Returns:
+  // { qualities: [..], score: sum, worst: min, label: "prime"|"ok"|"rough"|"impossible" }
+  function scoreSlot(zones, ms, bands) {
+    var qs = zones.map(function (tz) { return hourQuality(localHourOf(tz, ms), bands); });
+    var sum = qs.reduce(function (a, b) { return a + b; }, 0);
+    var worst = Math.min.apply(null, qs);
+    var label;
+    if (worst === -1) label = "impossible";       // someone is asleep
+    else if (worst === 2) label = "prime";         // everyone in work hours
+    else if (worst >= 1) label = "ok";             // no sleep, some stretch
+    else label = "rough";                          // early/late for someone
+    return { qualities: qs, score: sum, worst: worst, label: label };
+  }
+
+  // Build the day grid: 24 hour-slots for the reference date, scored.
+  // anchorTz gives the "day" we display (slots are anchored to that zone's date).
+  function dayGrid(zones, anchorTz, baseMs, bands) {
+    bands = bands || DEFAULT_BANDS();
+    // Midnight of anchor's local date → UTC instant; iterate 24 hours from it.
+    var parts = zoneHourFormatter(anchorTz)(baseMs);
+    // find UTC instant of anchor's midnight: bisect like yearpulse (cheap: probe-and-subtract)
+    var guess = baseMs - ((parts.hour * 60 + parts.minute) * 60000);
+    // refine: `guess` is right when anchor's local hour reads 0 (± DST edges)
+    var slots = [];
+    var q;
+    for (var h = 0; h < 24; h++) {
+      var ms = guess + h * 3600000;
+      q = scoreSlot(zones, ms, bands);
+      slots.push({
+        anchorHour: localHourOf(anchorTz, ms),
+        ms: ms,
+        score: q.score,
+        worst: q.worst,
+        label: q.label,
+        qualities: q.qualities
+      });
+    }
+    return slots;
+  }
+
+  // Best consecutive runs (for a meeting of N hours): scan the grid.
+  function bestRuns(slots, meetingHours) {
+    meetingHours = meetingHours || 1;
+    var runs = [];
+    for (var i = 0; i + meetingHours <= slots.length; i++) {
+      var worst = 2, sum = 0;
+      for (var j = 0; j < meetingHours; j++) {
+        worst = Math.min(worst, slots[i + j].worst);
+        sum += slots[i + j].score;
+      }
+      runs.push({ start: i, worst: worst, sum: sum });
+    }
+    runs.sort(function (a, b) { return (b.worst - a.worst) || (b.sum - a.sum); });
+    return runs;
+  }
+
+  // Format the same slot in every zone's wall clock (for the results table).
+  function slotInZones(zones, ms) {
+    return zones.map(function (tz) {
+      var p = zoneHourFormatter(tz)(ms);
+      return { tz: tz, hhmm: p.hour + ":" + (p.minute < 10 ? "0" : "") + p.minute,
+               localDate: p.year + "-" + (p.month < 10 ? "0" : "") + p.month + "-" + (p.day < 10 ? "0" : "") + p.day };
+    });
+  }
+
+  return {
+    CITIES: CITIES,
+    supportsZone: supportsZone,
+    localHourOf: localHourOf,
+    hourQuality: hourQuality,
+    DEFAULT_BANDS: DEFAULT_BANDS,
+    scoreSlot: scoreSlot,
+    dayGrid: dayGrid,
+    bestRuns: bestRuns,
+    slotInZones: slotInZones
+  };
+});
+
+
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var picks = $("picks");
+  var selCount = 0;
+
+  // ---- city picker rows --------------------------------------------------
+  function addPick(tz) {
+    if (selCount >= 5) return;
+    var row = document.createElement("div");
+    row.className = "pick";
+    var sel = document.createElement("select");
+    var custom = document.createElement("option");
+    custom.value = "__custom__"; custom.textContent = "自定义 IANA…";
+    meetmath.CITIES.forEach(function (c) {
+      var o = document.createElement("option");
+      o.value = c.tz; o.textContent = c.c + " (" + c.tz.split("/").pop() + ")";
+      sel.appendChild(o);
+    });
+    sel.appendChild(custom);
+    if (tz && meetmath.supportsZone(tz)) {
+      var has = Array.prototype.some.call(sel.options, function (o) { return o.value === tz; });
+      if (has) sel.value = tz; else { custom.textContent = tz + " (自定义)"; custom.value = tz; sel.value = tz; }
+    } else if (selCount === 0) sel.value = "Asia/Shanghai";
+    else if (selCount === 1) sel.value = "Europe/London";
+    else if (selCount === 2) sel.value = "America/New_York";
+    var cur = document.createElement("span");
+    cur.className = "cur";
+    function updCur() {
+      var v = sel.value === "__custom__" ? "UTC" : sel.value;
+      var p = new Date();
+      var hh = meetmath.localHourOf(v, p.getTime());
+      cur.textContent = "现在 " + (hh < 10 ? "0" : "") + hh + "点";
+    }
+    updCur();
+    sel.addEventListener("change", function () {
+      if (sel.value === "__custom__") {
+        var input = prompt("IANA 时区名,如 Asia/Tokyo / America/Chicago / UTC:", "UTC");
+        if (input && meetmath.supportsZone(input)) {
+          custom.value = input; custom.textContent = input + " (自定义)"; sel.value = input;
+        } else { sel.value = meetmath.CITIES[0].tz; if (input) alert("未知时区,已重置"); }
+      }
+      updCur();
+    });
+    var x = document.createElement("button");
+    x.className = "x"; x.textContent = "×"; x.title = "移除";
+    x.addEventListener("click", function () { row.remove(); selCount--; syncUI(); });
+    row.appendChild(sel); row.appendChild(cur); row.appendChild(x);
+    picks.appendChild(row);
+    selCount++;
+    syncUI();
+  }
+
+  $("add").addEventListener("click", function () { addPick(); });
+  function chosenZones() {
+    var zs = [];
+    picks.querySelectorAll("select").forEach(function (s) {
+      var v = s.value === "__custom__" ? "UTC" : s.value;
+      if (meetmath.supportsZone(v)) zs.push(v);
+    });
+    return zs;
+  }
+  function syncUI() {
+    $("add").disabled = selCount >= 5;
+    $("add").style.display = selCount >= 2 ? "" : "";
+  }
+
+  // ---- share link (?tz=CSV) ----------------------------------------------
+  try {
+    var q = new URLSearchParams(location.search).get("tz");
+    if (q) {
+      q.split(",").slice(0, 5).forEach(function (tz) { if (meetmath.supportsZone(tz)) addPick(tz.trim()); });
+    }
+  } catch (e) {}
+  while (selCount < 3) addPick();
+
+  $("share").addEventListener("click", function () {
+    var url = location.origin + location.pathname + "?tz=" + encodeURIComponent(chosenZones().join(","));
+    navigator.clipboard && navigator.clipboard.writeText(url);
+    this.textContent = "已复制 ✓";
+    var self = this;
+    setTimeout(function () { self.textContent = "复制分享链接"; }, 1600);
+  });
+
+  // ---- the grid + best list ------------------------------------------------
+  $("go").addEventListener("click", function () {
+    var zones = chosenZones();
+    if (zones.length < 2) { alert("至少选两个城市"); return; }
+    var bands = {
+      workStart: Math.max(0, parseInt($("ws").value, 10) || 9),
+      workEnd: Math.max(1, parseInt($("we").value, 10) || 18),
+      softStart: Math.max(0, (parseInt($("ws").value, 10) || 9) - 1),
+      softEnd: Math.min(24, (parseInt($("we").value, 10) || 18) + 4),
+      nightStart: 23, nightEnd: 7
+    };
+    var dur = Math.min(4, Math.max(1, parseInt($("dur").value, 10) || 1));
+    var anchor = zones[0];
+    var grid = meetmath.dayGrid(zones, anchor, Date.now(), bands);
+
+    $("grid24").hidden = false;
+    $("caption").textContent = "锚点:" + anchor + " 的今天(各格 = 锚点当地时间;" + zones.length + " 个时区)";
+    var hours = $("hours");
+    hours.innerHTML = "";
+    grid.forEach(function (s) {
+      var d = document.createElement("div");
+      d.className = "h " + s.label;
+      d.textContent = (s.anchorHour < 10 ? "0" : "") + s.anchorHour;
+      d.title = s.qualities.map(function (q, i) {
+        return zones[i].split("/").pop() + ": " + (q === 2 ? "工作时间" : q === 1 ? "可接受" : q === 0 ? "边缘" : "睡觉");
+      }).join(" · ");
+      hours.appendChild(d);
+    });
+
+    // best runs table
+    $("best").hidden = false;
+    $("col-anchor").textContent = anchor.split("/").pop() + " 时间";
+    var runs = meetmath.bestRuns(grid, dur).filter(function (r) { return r.worst >= 1; }).slice(0, 6);
+    var tb = $("tbody");
+    tb.innerHTML = "";
+    runs.forEach(function (r) {
+      var slot = grid[r.start];
+      var all = meetmath.slotInZones(zones, slot.ms);
+      var tr = document.createElement("tr");
+      var tag = document.createElement("span");
+      tag.className = "tag " + (slot.worst === 2 ? "prime" : "ok");
+      tag.textContent = slot.worst === 2 ? "最佳" : "可行";
+      var td1 = document.createElement("td"); td1.appendChild(tag);
+      var td2 = document.createElement("td");
+      td2.textContent = String(slot.anchorHour).padStart(2, "0") + ":00" + (dur > 1 ? "–" + String((slot.anchorHour + dur) % 24).padStart(2, "0") + ":00" : "");
+      var td3 = document.createElement("td");
+      td3.textContent = all.map(function (a) { return a.tz.split("/").pop() + " " + a.hhmm; }).join(" · ");
+      tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
+      tb.appendChild(tr);
+    });
+    if (!runs.length) {
+      var tr = document.createElement("tr");
+      tr.innerHTML = '<td colspan="3" style="color:var(--faint)">没有全员醒着可接受的时间窗——放宽工作时段或缩短会议试试</td>';
+      tb.appendChild(tr);
+    }
+  });
+  syncUI();
+})();
+</script>
+</body>
+</html>
