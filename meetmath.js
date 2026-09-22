@@ -14,7 +14,7 @@
 })(typeof self !== "undefined" ? self : this, function () {
   "use strict";
 
-  // Common city set (deliberately compact: 40 covers most real meetings;
+  // Common city set (deliberately compact: 36 covers most real meetings;
   // any IANA name can be typed into the custom box).
   var CITIES = [
     { c: "北京", tz: "Asia/Shanghai" }, { c: "上海", tz: "Asia/Shanghai" },
@@ -106,7 +106,7 @@
     bands = bands || DEFAULT_BANDS();
     // Midnight of anchor's local date → UTC instant; iterate 24 hours from it.
     var parts = zoneHourFormatter(anchorTz)(baseMs);
-    // find UTC instant of anchor's midnight: bisect like yearpulse (cheap: probe-and-subtract)
+    // find UTC instant of anchor's midnight: probe-and-subtract, not bisection
     var guess = baseMs - ((parts.hour * 60 + parts.minute) * 60000);
     // refine: `guess` is right when anchor's local hour reads 0 (± DST edges)
     var slots = [];
