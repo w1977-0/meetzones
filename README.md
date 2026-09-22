@@ -8,6 +8,9 @@
 >
 > **日本語** — 複数都市の会議時間を色分けグリッドで表示、広告なし・アップロード不要。**[使ってみる](https://w1977-0.github.io/meetzones/)**
 
+
+[![CI](https://github.com/w1977-0/meetzones/actions/workflows/ci.yml/badge.svg)](https://github.com/w1977-0/meetzones/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) ![No upload](https://img.shields.io/badge/privacy-no%20upload-green.svg)
+
 ## Why
 
 The incumbent (timeanddate.com) is excellent — and ad-supported, tracker-laden, and increasingly hostile to non-browser clients (403). On the open-source side, every "meeting timezone" project we surveyed is a <5-star draft. There was no quality free-as-in-freedom option. Same gap, same recipe as our other tools: one HTML file, zero dependencies, zero post-load requests.
