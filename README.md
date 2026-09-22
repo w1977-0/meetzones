@@ -32,6 +32,16 @@ node --test test/meetmath.test.js
 
 11 tests: zone validity for all preset cities, known-instant local hours (UTC±14/−11), band classification, pair scoring (Shanghai+London has a prime overlap; Shanghai+New York provably cannot), grid ordering, best-run ranking, and per-zone wall-clock rendering with correct date rolls.
 
+## Browser support
+
+Any current Chrome, Edge, Firefox or Safari. The zone data comes from the platform's own IANA database via `Intl`, so the browser supplies the rules and DST correctness follows the machine it runs on — a browser with a stale tz database will show stale DST dates. Everything else is plain DOM: no build step, no requests after load, and the whole state lives in the URL.
+
+## What it does not do
+
+- **No calendar integration.** It does not read or write Google Calendar, Outlook, or any availability source — "work hours" are the bands you set, applied to everyone.
+- **No per-person work hours.** One set of bands covers all participants; if someone keeps different hours, run it twice.
+- **No scheduling or reminders.** It finds windows and gives you a shareable link. Nothing is stored, and nothing sends an invitation.
+
 ## License
 
 MIT
